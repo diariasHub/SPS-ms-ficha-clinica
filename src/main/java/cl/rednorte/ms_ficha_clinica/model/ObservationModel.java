@@ -1,4 +1,5 @@
 package cl.rednorte.ms_ficha_clinica.model;
+import jakarta.persistence.Table;
 import lombok.*;
 
 import java.util.Date;
@@ -15,6 +16,7 @@ public class ObservationModel {
 
     private String id;
     private String patientId;
+    private String encounterId;
     private String code;
     private Double value;
     private String unit;
