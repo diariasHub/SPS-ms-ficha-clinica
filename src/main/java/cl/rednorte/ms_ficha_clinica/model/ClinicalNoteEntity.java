@@ -29,6 +29,7 @@ public class ClinicalNoteEntity {
     @Column
     private String author;
 
+    @SuppressWarnings("deprecation")
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;

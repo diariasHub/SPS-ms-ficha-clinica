@@ -30,6 +30,7 @@ public class ProcedureEntity {
     @Column(nullable = false)
     private String status; // preparation, in-progress, completed, stopped
 
+    @SuppressWarnings("deprecation")
     @Column(name = "performed_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date performedDate;

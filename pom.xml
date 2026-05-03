@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <!-- =============================== -->
     <!-- CONFIGURACIÓN GENERAL -->
@@ -11,8 +11,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.5</version>
-        <relativePath/>
+        <version>4.0.6</version>
+        <relativePath />
     </parent>
 
     <groupId>cl.rednorte</groupId>
@@ -30,25 +30,25 @@
     <!-- =============================== -->
     <dependencies>
 
-        <!-- 🔹 SPRING BOOT - WEB -->
+        <!-- SPRING BOOT - WEB -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
-        <!-- 🔹 SPRING DATA JPA -->
+        <!-- SPRING DATA JPA -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- 🔹 VALIDACIÓN (NUEVO) -->
+        <!-- VALIDACIÓN (NUEVO) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- 🔹 BASE DE DATOS -->
+        <!-- BASE DE DATOS -->
 
         <!-- MySQL -->
         <dependency>
@@ -77,13 +77,13 @@
             <artifactId>spring-boot-h2console</artifactId>
         </dependency>
 
-        <!-- 🔹 CLIENTE HTTP (REST) -->
+        <!-- CLIENTE HTTP (REST) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-restclient</artifactId>
         </dependency>
 
-        <!-- 🔹 FHIR -->
+        <!-- FHIR -->
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-structures-r4</artifactId>
@@ -96,7 +96,7 @@
             <version>8.4.0</version>
         </dependency>
 
-        <!-- 🔹 LOMBOK -->
+        <!--  LOMBOK -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -127,7 +127,7 @@
     <build>
         <plugins>
 
-            <!-- 🔹 SPRING BOOT -->
+            <!--  SPRING BOOT -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -141,7 +141,7 @@
                 </configuration>
             </plugin>
 
-            <!-- 🔹 COMPILADOR -->
+            <!--  COMPILADOR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

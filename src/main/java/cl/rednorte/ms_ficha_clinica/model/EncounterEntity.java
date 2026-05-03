@@ -28,10 +28,12 @@ public class EncounterEntity {
     @Column(nullable = false)
     private EncounterStatus status;
 
+    @SuppressWarnings("deprecation")
     @Column(name = "period_start")
     @Temporal(TemporalType.TIMESTAMP)
     private Date periodStart;
 
+    @SuppressWarnings("deprecation")
     @Column(name = "period_end")
     @Temporal(TemporalType.TIMESTAMP)
     private Date periodEnd;
