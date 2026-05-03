@@ -1,18 +1,17 @@
-package cl.rednorte.ms_ficha_clinica.model;
-import lombok.*;
+package cl.rednorte.ms_ficha_clinica.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-/*
-Esta clase sirve como modelo interno que va a conectarse con
-el modelo de datos de HFIR, luego este se debe mapear con el SP
- */
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ObservationModel {
-
+public class ObservationDTO {
     private String id;
     private String patientId;
     private String encounterId;
@@ -20,5 +19,4 @@ public class ObservationModel {
     private Double value;
     private String unit;
     private Date effectiveDate;
-
 }

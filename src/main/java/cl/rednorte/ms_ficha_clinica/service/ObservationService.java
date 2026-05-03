@@ -14,6 +14,8 @@ public interface ObservationService {
 
     List<ObservationDTO> getObservationsByEncounterId(String encounterId);
 
+    List<ObservationDTO> getObservationHistory(String patientId);
+
     ObservationDTO updateObservation(String id, ObservationDTO observationDTO);
 
     void deleteObservation(String id);
