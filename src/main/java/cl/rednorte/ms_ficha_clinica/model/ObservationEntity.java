@@ -43,6 +43,7 @@ public class ObservationEntity {
     @Column
     private String unit;
 
+    @SuppressWarnings("deprecation")
     @Column(name = "effective_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date effectiveDate;

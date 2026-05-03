@@ -36,6 +36,7 @@ public class ConditionEntity {
     @Column(name = "onset_date")
     private Date onsetDate;
 
+    @SuppressWarnings("deprecation")
     @Column(name = "recorded_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date recordedDate;
