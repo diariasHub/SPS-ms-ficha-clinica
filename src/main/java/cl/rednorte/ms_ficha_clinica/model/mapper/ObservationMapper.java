@@ -3,6 +3,15 @@ package cl.rednorte.ms_ficha_clinica.model.mapper;
 import cl.rednorte.ms_ficha_clinica.model.ObservationEntity;
 import org.hl7.fhir.r4.model.*;
 
+/*
+Esta clase hace un mapeo por medio de org.hl7.fhir.r4.model.* desde HFIR
+ayudando al cumplimiento del standar HL7 HFIR
+
+Corrobora que la Entidad esté alineada con el estandar
+
+Esto sirve para poder realizar interconsultas efectivas
+*/
+
 public class ObservationMapper {
 
     public static ObservationEntity fromFhir(Observation obs) {

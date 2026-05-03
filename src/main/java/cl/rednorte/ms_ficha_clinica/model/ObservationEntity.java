@@ -5,6 +5,17 @@ import lombok.*;
 
 import java.util.Date;
 
+/*
+Este model crea la tabla para que los datos puedan persistir de manera relacional,
+se establecen los atributos y se pueden restringir en el microservicio:
+
+    - Cantidad de carácteres
+    - Tipo de datos
+    - Nombre de las columnas
+
+A modo general, es similar a CREATE TABLE
+ */
+
 @Entity
 @Table(name = "observations")
 @Getter
