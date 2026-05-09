@@ -1,20 +1,6 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:8.0
-    container_name: ms-ficha-clinica-db
-    restart: always
-    environment:
-      MYSQL_DATABASE: bd_rednorte
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: user_rednorte
-      MYSQL_PASSWORD: password_rednorte
-    ports:
-      - "3307:3307"
-    volumes:
-      - mysql_data:/var/lib/mysql
-
   app:
     build: .
     container_name: ms-ficha-clinica-app
@@ -22,12 +8,8 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/bd_rednorte?useSSL=false&serverTimezone=America/Santiago&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-sweet-paper-ap7u0t4b-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_ZFQao74MzXDC
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-    depends_on:
-      - db
-
-volumes:
-  mysql_data:
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
