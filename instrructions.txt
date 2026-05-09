@@ -1,0 +1,55 @@
+## Despliegue con Docker
+
+El proyecto incluye soporte para Docker y Docker Compose, facilitando el levantamiento tanto del microservicio como de la base de datos de manera automatizada.
+
+### Requisitos
+*   Docker Desktop o Engine instalado.
+*   Docker Compose instalado.
+
+### Instrucciones de Despliegue
+Para construir las imágenes e iniciar los contenedores en modo segundo plano:
+
+```bash
+docker compose up --build -d
+```
+
+### Servicios
+*   **App:** Disponible en `http://localhost:8001`.
+*   **MySQL:** Disponible en `localhost:3307`.
+
+### Visualización de Logs
+Para monitorear el log de la aplicación:
+
+```bash
+docker compose logs -f app
+```
+
+---------------------------------------------------------
+ARRANQUE NORMAL
+---------------------------------------------------------
+
+docker compose up -d
+
+---------------------------------------------------------
+DETENER SERVICIOS
+---------------------------------------------------------
+
+docker compose stop
+
+---------------------------------------------------------
+ELIMINAR CONTENEDORES
+---------------------------------------------------------
+
+docker compose down
+
+Eliminar también los volúmenes:
+
+docker compose down -v
+
+---------------------------------------------------------
+VER CONTENEDORES
+---------------------------------------------------------
+
+docker compose ps
+
+---------------------------------------------------------

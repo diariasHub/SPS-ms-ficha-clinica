@@ -9,12 +9,14 @@ El sistema permite el registro y consulta de diversos recursos clínicos, tales 
 ## Especificaciones Técnicas
 
 ### Stack Tecnológico
+
 *   **Lenguaje:** Java 21 LTS
 *   **Framework:** Spring Boot 4.0.x (basado en Jakarta EE)
 *   **Persistencia:** Spring Data JPA con Hibernate
 *   **Base de Datos:** MySQL 8.x
 *   **Estándar de Interoperabilidad:** HAPI FHIR R4
 *   **Herramientas:** Maven, Lombok, Jakarta Validation
+
 
 ### Arquitectura
 El proyecto sigue un patrón de diseño en capas para asegurar la separación de responsabilidades:
@@ -44,11 +46,42 @@ spring.datasource.username=root
 spring.datasource.password=
 ```
 
-### Ejecución
-Para iniciar la aplicación en un entorno de desarrollo, utilice el siguiente comando Maven:
+### Ejecución con Maven
+
+Para iniciar la aplicación en un entorno de desarrollo utilizando Maven:
+
 ```bash
 mvn spring-boot:run
 ```
+
+---
+
+## Despliegue con Docker
+
+El proyecto incluye soporte para Docker y Docker Compose, facilitando el levantamiento tanto del microservicio como de la base de datos de manera automatizada.
+
+### Requisitos
+*   Docker Desktop o Engine instalado.
+*   Docker Compose instalado.
+
+### Instrucciones de Despliegue
+Para construir las imágenes e iniciar los contenedores en modo segundo plano:
+
+```bash
+docker compose up --build -d
+```
+
+### Servicios
+*   **App:** Disponible en `http://localhost:8001`.
+*   **MySQL:** Disponible en `localhost:3307`.
+
+### Visualización de Logs
+Para monitorear el log de la aplicación:
+
+```bash
+docker compose logs -f app
+```
+
 
 ## Documentación de API
 
