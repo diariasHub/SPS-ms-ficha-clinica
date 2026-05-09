@@ -17,4 +17,5 @@ public class ClinicalNoteModel {
     private String content;
     private String author;
     private Date createdAt;
+
 }
