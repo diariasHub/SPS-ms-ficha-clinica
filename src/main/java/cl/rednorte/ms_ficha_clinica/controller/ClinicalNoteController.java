@@ -16,27 +16,45 @@ public class ClinicalNoteController {
 
     private final ClinicalNoteService clinicalNoteService;
 
+    // CREATE
     @PostMapping
     public ResponseEntity<ClinicalNoteDTO> createClinicalNote(@RequestBody ClinicalNoteDTO clinicalNoteDTO) {
         return ResponseEntity.ok(clinicalNoteService.createClinicalNote(clinicalNoteDTO));
     }
 
+    // GET ALL
+    @GetMapping
+    public ResponseEntity<List<ClinicalNoteDTO>> getAllClinicalNotes() {
+        return ResponseEntity.ok(clinicalNoteService.getAllClinicalNotes());
+    }
+
+    // GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<ClinicalNoteDTO> getClinicalNoteById(@PathVariable String id) {
         ClinicalNoteDTO clinicalNote = clinicalNoteService.getClinicalNoteById(id);
-        return clinicalNote != null ? ResponseEntity.ok(clinicalNote) : ResponseEntity.notFound().build();
+
+        return clinicalNote != null
+                ? ResponseEntity.ok(clinicalNote)
+                : ResponseEntity.notFound().build();
     }
 
+    // GET BY PATIENT ID
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<ClinicalNoteDTO>> getClinicalNotesByPatientId(@PathVariable String patientId) {
-        return ResponseEntity.ok(clinicalNoteService.getClinicalNotesByPatientId(patientId));
+        return ResponseEntity.ok(
+                clinicalNoteService.getClinicalNotesByPatientId(patientId)
+        );
     }
 
+    // GET BY ENCOUNTER ID
     @GetMapping("/encounter/{encounterId}")
     public ResponseEntity<List<ClinicalNoteDTO>> getClinicalNotesByEncounterId(@PathVariable String encounterId) {
-        return ResponseEntity.ok(clinicalNoteService.getClinicalNotesByEncounterId(encounterId));
+        return ResponseEntity.ok(
+                clinicalNoteService.getClinicalNotesByEncounterId(encounterId)
+        );
     }
 
+    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClinicalNote(@PathVariable String id) {
         clinicalNoteService.deleteClinicalNote(id);
