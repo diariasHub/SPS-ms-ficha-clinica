@@ -1,14 +1,16 @@
 package cl.rednorte.ms_ficha_clinica.exception;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
+import io.swagger.v3.oas.annotations.Hidden;
+@Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
