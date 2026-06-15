@@ -1,75 +1,160 @@
 package cl.rednorte.ms_ficha_clinica.service.impl;
 
-import cl.rednorte.ms_ficha_clinica.dto.EncounterDTO;
-import cl.rednorte.ms_ficha_clinica.model.EncounterEntity;
-import cl.rednorte.ms_ficha_clinica.model.EncounterModel;
-import cl.rednorte.ms_ficha_clinica.model.mapper.EncounterMapper;
-import cl.rednorte.ms_ficha_clinica.model.status.EncounterStatus;
-import cl.rednorte.ms_ficha_clinica.repository.EncounterRepository;
-import cl.rednorte.ms_ficha_clinica.service.EncounterService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Encounter;
+import org.hl7.fhir.r4.model.IdType;
+import org.hl7.fhir.r4.model.Reference;
+import org.springframework.stereotype.Service;
+
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+import cl.rednorte.ms_ficha_clinica.dto.EncounterDTO;
+import cl.rednorte.ms_ficha_clinica.service.EncounterService;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class EncounterServiceImpl implements EncounterService {
 
-    private final EncounterRepository encounterRepository;
+    // ¡Adiós EncounterRepository! Inyectamos el cliente FHIR.
+    private final IGenericClient fhirClient;
 
     @Override
     public EncounterDTO createEncounter(EncounterDTO encounterDTO) {
-        EncounterModel model = EncounterMapper.toModel(encounterDTO);
-        if (model.getPeriodStart() == null) {
-            model.setPeriodStart(new Date());
+        // 1. Mapear tu DTO al recurso nativo FHIR org.hl7.fhir.r4.model.Encounter
+        Encounter fhirEncounter = mapToFhir(encounterDTO);
+        
+        if (!fhirEncounter.hasPeriod() || !fhirEncounter.getPeriod().hasStart()) {
+            fhirEncounter.getPeriod().setStart(new Date());
         }
-        if (model.getStatus() == null) {
-            model.setStatus(EncounterStatus.IN_PROGRESS);
+        if (!fhirEncounter.hasStatus()) {
+            fhirEncounter.setStatus(Encounter.EncounterStatus.INPROGRESS);
         }
-        EncounterEntity entity = EncounterMapper.toEntity(model);
-        EncounterEntity savedEntity = encounterRepository.save(entity);
-        return EncounterMapper.toDTO(EncounterMapper.toModel(savedEntity));
+
+        // 2. Ejecutar la operación CREATE en el servidor FHIR
+        fhirClient.create()
+                .resource(fhirEncounter)
+                .execute();
+
+        // Nota: Idealmente deberíamos capturar el ID generado por HAPI FHIR de la respuesta
+        // y asignarlo al DTO antes de retornarlo.
+        return mapToDTO(fhirEncounter);
     }
 
     @Override
     public EncounterDTO getEncounterById(String id) {
-        return encounterRepository.findById(id)
-                .map(EncounterMapper::toModel)
-                .map(EncounterMapper::toDTO)
-                .orElse(null);
+        try {
+            // Operación READ por ID: GET /Encounter/{id}
+            Encounter fhirEncounter = fhirClient.read()
+                    .resource(Encounter.class)
+                    .withId(id)
+                    .execute();
+                    
+            return mapToDTO(fhirEncounter);
+        } catch (Exception e) {
+            // HAPI lanza ResourceNotFoundException si no existe (código 404)
+            return null;
+        }
     }
 
     @Override
     public List<EncounterDTO> getEncountersByPatientId(String patientId) {
-        return encounterRepository.findByPatientId(patientId).stream()
-                .map(EncounterMapper::toModel)
-                .map(EncounterMapper::toDTO)
-                .collect(Collectors.toList());
+        // Operación SEARCH: GET /Encounter?subject=Patient/{patientId}
+        Bundle response = fhirClient.search()
+                .forResource(Encounter.class)
+                .where(Encounter.SUBJECT.hasId("Patient/" + patientId))
+                .returnBundle(Bundle.class)
+                .execute();
+
+        // Extraer los recursos del Bundle devuelto por FHIR
+        List<EncounterDTO> encounters = new ArrayList<>();
+        for (Bundle.BundleEntryComponent entry : response.getEntry()) {
+            if (entry.getResource() instanceof Encounter) {
+                encounters.add(mapToDTO((Encounter) entry.getResource()));
+            }
+        }
+        return encounters;
     }
 
     @Override
     public EncounterDTO updateStatus(String id, String status) {
-        return encounterRepository.findById(id)
-                .map(entity -> {
-                    try {
-                        EncounterStatus newStatus = EncounterStatus.valueOf(status.toUpperCase());
-                        entity.setStatus(newStatus);
-                        if (newStatus == EncounterStatus.FINISHED) {
-                            entity.setPeriodEnd(new Date());
-                        }
-                        EncounterEntity updatedEntity = encounterRepository.save(entity);
-                        return EncounterMapper.toDTO(EncounterMapper.toModel(updatedEntity));
-                    } catch (Exception e) {
-                        return null;
-                    }
-                }).orElse(null);
+        // 1. Primero debemos recuperar el recurso existente
+        Encounter fhirEncounter = fhirClient.read().resource(Encounter.class).withId(id).execute();
+        
+        if (fhirEncounter != null) {
+            try {
+                // 2. Actualizar el estado (HAPI usa Enums nativos para los status)
+                Encounter.EncounterStatus newStatus = Encounter.EncounterStatus.valueOf(status.toUpperCase());
+                fhirEncounter.setStatus(newStatus);
+                
+                if (newStatus == Encounter.EncounterStatus.FINISHED) {
+                    fhirEncounter.getPeriod().setEnd(new Date());
+                }
+
+                // 3. Ejecutar la operación UPDATE: PUT /Encounter/{id}
+                fhirClient.update()
+                        .resource(fhirEncounter)
+                        .execute();
+                        
+                return mapToDTO(fhirEncounter);
+            } catch (IllegalArgumentException e) {
+                // El string proporcionado no mapea a un status FHIR válido
+                return null;
+            }
+        }
+        return null;
     }
 
     @Override
     public void deleteEncounter(String id) {
-        encounterRepository.deleteById(id);
+        // Operación DELETE: DELETE /Encounter/{id}
+        fhirClient.delete()
+                .resourceById(new IdType("Encounter", id))
+                .execute();
+    }
+
+    // =========================================================================
+    // MÉTODOS DE MAPEO (Tendrás que ajustarlos según los campos de tu DTO)
+    // =========================================================================
+
+    private EncounterDTO mapToDTO(Encounter fhirEncounter) {
+        EncounterDTO dto = new EncounterDTO();
+        
+        // El ID en FHIR viene con formato "Encounter/123/_history/1", usamos getIdPart()
+        if (fhirEncounter.hasIdElement()) dto.setId(fhirEncounter.getIdElement().getIdPart());
+        if (fhirEncounter.hasStatus()) dto.setStatus(fhirEncounter.getStatus().toCode());
+        if (fhirEncounter.hasSubject()) dto.setPatientId(fhirEncounter.getSubject().getReferenceElement().getIdPart());
+        
+        if (fhirEncounter.hasPeriod()) {
+            dto.setPeriodStart(fhirEncounter.getPeriod().getStart());
+            dto.setPeriodEnd(fhirEncounter.getPeriod().getEnd());
+        }
+        return dto;
+    }
+
+    private Encounter mapToFhir(EncounterDTO dto) {
+        Encounter fhirEncounter = new Encounter();
+        
+        if (dto.getId() != null) fhirEncounter.setId(dto.getId());
+        if (dto.getPatientId() != null) fhirEncounter.setSubject(new Reference("Patient/" + dto.getPatientId()));
+        
+        // Mapeo de Period
+        if (dto.getPeriodStart() != null || dto.getPeriodEnd() != null) {
+            fhirEncounter.getPeriod().setStart(dto.getPeriodStart());
+            fhirEncounter.getPeriod().setEnd(dto.getPeriodEnd());
+        }
+        
+        // Mapeo de Status
+        if (dto.getStatus() != null) {
+            try {
+                fhirEncounter.setStatus(Encounter.EncounterStatus.fromCode(dto.getStatus().toLowerCase()));
+            } catch (Exception e) {
+                fhirEncounter.setStatus(Encounter.EncounterStatus.UNKNOWN);
+            }
+        }
+        return fhirEncounter;
     }
 }
