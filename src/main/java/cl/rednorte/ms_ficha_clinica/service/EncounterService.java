@@ -1,8 +1,8 @@
 package cl.rednorte.ms_ficha_clinica.service;
 
-import cl.rednorte.ms_ficha_clinica.dto.EncounterDTO;
-
 import java.util.List;
+
+import cl.rednorte.ms_ficha_clinica.dto.EncounterDTO;
 
 public interface EncounterService {
     EncounterDTO createEncounter(EncounterDTO encounterDTO);
@@ -14,4 +14,6 @@ public interface EncounterService {
     EncounterDTO updateStatus(String id, String status);
 
     void deleteEncounter(String id);
+
+    EncounterDTO startEncounterFromAppointment(String appointmentId);
 }

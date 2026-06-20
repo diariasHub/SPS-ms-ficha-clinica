@@ -4,17 +4,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.hl7.fhir.r4.model.Appointment;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.IdType;
+import org.hl7.fhir.r4.model.Period;
 import org.hl7.fhir.r4.model.Reference;
 import org.springframework.stereotype.Service;
 
+import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import cl.rednorte.ms_ficha_clinica.dto.EncounterDTO;
 import cl.rednorte.ms_ficha_clinica.service.EncounterService;
 import lombok.RequiredArgsConstructor;
-
 @Service
 @RequiredArgsConstructor
 public class EncounterServiceImpl implements EncounterService {
@@ -156,5 +159,76 @@ public class EncounterServiceImpl implements EncounterService {
             }
         }
         return fhirEncounter;
+    }
+    @Override
+    public EncounterDTO startEncounterFromAppointment(String appointmentId) {
+        
+        // 1. Leer la cita original desde FHIR
+        Appointment cita = fhirClient.read()
+                .resource(Appointment.class)
+                .withId(appointmentId)
+                .execute();
+
+        // 2. Extraer el Paciente y el Médico de los participantes de la cita
+        Reference refPaciente = null;
+        Reference refMedico = null;
+
+        for (Appointment.AppointmentParticipantComponent participante : cita.getParticipant()) {
+            if (participante.getActor().getReference() != null) {
+                if (participante.getActor().getReference().startsWith("Patient/")) {
+                    refPaciente = participante.getActor();
+                } else if (participante.getActor().getReference().startsWith("Practitioner/")) {
+                    refMedico = participante.getActor();
+                }
+            }
+        }
+
+        if (refPaciente == null) {
+            throw new RuntimeException("La cita no tiene un paciente válido asignado.");
+        }
+
+        // 3. Crear el nuevo Encuentro Clínico (Encounter)
+        Encounter encuentro = new Encounter();
+        encuentro.setStatus(Encounter.EncounterStatus.INPROGRESS); 
+        
+        // Clasificación: AMB (Ambulatorio)
+        Coding claseAmbulatoria = new Coding()
+                .setSystem("http://terminology.hl7.org/CodeSystem/v3-ActCode")
+                .setCode("AMB")
+                .setDisplay("ambulatory");
+        encuentro.setClass_(claseAmbulatoria);
+
+        // Enlazar Paciente y Médico
+        encuentro.setSubject(refPaciente);
+        if (refMedico != null) {
+            Encounter.EncounterParticipantComponent participanteEncuentro = new Encounter.EncounterParticipantComponent();
+            participanteEncuentro.setIndividual(refMedico);
+            encuentro.addParticipant(participanteEncuentro);
+        }
+
+        // Enlazar la Cita Original para trazabilidad
+        encuentro.addAppointment(new Reference("Appointment/" + appointmentId));
+
+        // Registrar la hora de inicio real
+        Period periodo = new Period();
+        periodo.setStart(new Date());
+        encuentro.setPeriod(periodo);
+
+        // 4. Guardar en el servidor FHIR
+        MethodOutcome resultado = fhirClient.create()
+                .resource(encuentro)
+                .execute();
+
+        String idEncuentroCreado = resultado.getId().getIdPart();
+
+        // 5. Mapear y retornar tu EncounterDTO
+        // NOTA: Ajusta esto según cómo esté construido tu EncounterDTO (setters, constructores o builders)
+        EncounterDTO dto = new EncounterDTO();
+        dto.setId(idEncuentroCreado);
+        dto.setPatientId(refPaciente.getReference().replace("Patient/", ""));
+        dto.setStatus("in-progress");
+        // dto.set... (los demás campos que uses)
+        
+        return dto;
     }
 }

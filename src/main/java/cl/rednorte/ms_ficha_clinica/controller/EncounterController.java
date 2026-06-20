@@ -53,4 +53,11 @@ public class EncounterController {
         encounterService.deleteEncounter(id);
         return ResponseEntity.noContent().build();
     }
+    // Nuevo endpoint para iniciar la atención desde una cita de la agenda
+    @PostMapping("/start/{appointmentId}")
+    public ResponseEntity<EncounterDTO> startEncounterFromAppointment(@PathVariable String appointmentId) {
+        EncounterDTO nuevoEncuentro = encounterService.startEncounterFromAppointment(appointmentId);
+        return ResponseEntity.ok(nuevoEncuentro);
+    }
+
 }
