@@ -40,9 +40,9 @@ El microservicio opera por defecto en el puerto **8001**.
 ### Configuración de Base de Datos
 La aplicación se conecta a una instancia de PostgreSQL en la nube (Neon). La configuración se gestiona mediante variables de entorno en el archivo `application.properties`:
 ```properties
-spring.datasource.url=jdbc:postgresql://ep-sweet-paper-ap7u0t4b-pooler.c-7.us-east-1.aws.neon.tech/neondb
-spring.datasource.username=neondb_owner
-spring.datasource.password=npg_ZFQao74MzXDC
+spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:postgresql://ep-sweet-paper-ap7u0t4b-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME:neondb_owner}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
 ```
 
 ### Ejecución Local
